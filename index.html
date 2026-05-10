@@ -220,3 +220,29 @@
 
 </body>
 </html>
+<script>
+    function checkUnlockCode() {
+        const adminCode = "cx90mkow"; // Admin က သတ်မှတ်ထားတဲ့ ကုဒ်
+        const userEntry = prompt("Admin က ပေးထားသော Unlock Code ကို ရိုက်ထည့်ပါ:");
+
+        if (userEntry === adminCode) {
+            alert("ဂုဏ်ယူပါတယ်။ Feature အားလုံးကို Unlocked လုပ်ပြီးပါပြီ။");
+            
+            // UI ကို ပြောင်းလဲပေးခြင်း
+            document.body.style.border = "5px solid #ff6b00"; // Unlocked ဖြစ်ကြောင်း သိသာအောင်
+            
+            // Pricing Section ကို ဖျောက်လိုက်ပြီး "Premium Active" လို့ ပြောင်းပါမယ်
+            const pricingSection = document.querySelector('.pricing-section');
+            pricingSection.innerHTML = `
+                <div style="background: #fff7f0; padding: 20px; border-radius: 15px; border: 2px dashed #ff6b00;">
+                    <h2 style="color: #ff6b00;">✨ Premium Unlocked ✨</h2>
+                    <p>Admin Code (cx90mkow) ဖြင့် အားလုံးကို အသုံးပြုနိုင်ပါပြီ။</p>
+                </div>
+            `;
+            
+            // Lock ဖြစ်နေတဲ့ Feature တွေရှိရင် ဒီနေရာမှာ ပွင့်သွားအောင် ရေးလို့ရပါတယ်
+        } else {
+            alert("ကုဒ်မှားနေပါသည်။ Admin ကို ပြန်လည်မေးမြန်းပါ။");
+        }
+    }
+</script>
