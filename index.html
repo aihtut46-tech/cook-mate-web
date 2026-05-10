@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CookMate AI - Modern Cooking App</title>
+    <title>CookMate AI - Premium Web App</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
@@ -23,6 +23,7 @@
         body {
             background-color: var(--bg-light);
             color: var(--text-dark);
+            padding-bottom: 70px; /* Mobile Nav အတွက် နေရာချန်ထားခြင်း */
         }
 
         /* Navigation */
@@ -49,102 +50,157 @@
             text-decoration: none;
             color: #666;
             font-weight: 500;
+            cursor: pointer;
         }
 
-        /* Hero & Pricing Table */
+        /* Container */
         .container {
-            max-width: 1200px;
+            max-width: 1000px;
             margin: 2rem auto;
             padding: 0 20px;
         }
 
-        .pricing-section {
+        /* Header Text */
+        .welcome-text {
+            margin-bottom: 1.5rem;
+        }
+
+        /* Search Bar */
+        .search-box {
+            background: #f1f1f1;
+            padding: 12px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .search-box input {
+            background: transparent;
+            border: none;
+            outline: none;
+            margin-left: 10px;
+            width: 100%;
+            font-size: 1rem;
+        }
+
+        /* Categories */
+        .categories {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .cat-btn {
+            background: var(--white);
+            padding: 8px 20px;
+            border-radius: 20px;
+            white-space: nowrap;
+            border: 1px solid #eee;
+            cursor: pointer;
+        }
+
+        .cat-btn.active {
+            background: var(--primary-orange);
+            color: white;
+            border: none;
+        }
+
+        /* Pricing Section */
+        #pricing-area {
             text-align: center;
-            margin-bottom: 3rem;
+            margin: 2rem 0;
+            background: var(--white);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
         }
 
         .pricing-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 20px;
-            margin-top: 2rem;
+            margin-top: 20px;
         }
 
         .price-card {
-            background: var(--white);
-            padding: 2rem;
-            border-radius: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            padding: 20px;
+            border: 1px solid #eee;
+            border-radius: 15px;
             transition: 0.3s;
-            cursor: pointer;
-            border: 2px solid transparent;
-        }
-
-        .price-card:hover {
-            transform: translateY(-10px);
-            border-color: var(--primary-orange);
         }
 
         .price-card.popular {
-            background: linear-gradient(135deg, #fff 0%, #fff7f0 100%);
             border: 2px solid var(--primary-orange);
+            background: #fff9f5;
         }
 
-        .price-card h3 { color: var(--primary-orange); margin-bottom: 1rem; }
-        .price { font-size: 2rem; font-weight: bold; margin: 1rem 0; }
-        
         .btn {
             background: var(--primary-orange);
             color: white;
-            padding: 12px 30px;
+            padding: 10px 20px;
             border: none;
             border-radius: 25px;
-            font-weight: bold;
             width: 100%;
-            margin-top: 1rem;
+            margin-top: 15px;
             cursor: pointer;
+            font-weight: bold;
         }
 
-        /* Recipe Grid */
-        .recipe-grid {
+        /* Recipe Cards */
+        .trending-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 25px;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
         }
 
         .recipe-card {
             background: var(--white);
-            border-radius: 15px;
+            border-radius: 20px;
             overflow: hidden;
             box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            cursor: pointer;
         }
 
         .recipe-img {
             width: 100%;
-            height: 180px;
-            background: #ddd;
+            height: 150px;
             object-fit: cover;
         }
 
-        .recipe-content { padding: 15px; }
+        .recipe-info {
+            padding: 12px;
+        }
 
-        /* Responsive Mobile Bottom Nav */
-        @media (max-width: 768px) {
-            .nav-links { display: none; }
-            .mobile-nav {
-                position: fixed;
-                bottom: 0;
-                width: 100%;
-                background: white;
-                display: flex;
-                justify-content: space-around;
-                padding: 15px;
-                box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-            }
+        /* Mobile Bottom Nav */
+        .mobile-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: var(--white);
+            display: flex;
+            justify-content: space-around;
+            padding: 15px;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+
+        .mobile-nav i {
+            font-size: 1.2rem;
+            color: #ccc;
+            cursor: pointer;
+        }
+
+        .mobile-nav i.active {
+            color: var(--primary-orange);
         }
 
         @media (min-width: 769px) {
             .mobile-nav { display: none; }
+            .trending-grid { grid-template-columns: 1fr 1fr 1fr; }
         }
     </style>
 </head>
@@ -153,96 +209,109 @@
 <nav>
     <div class="logo">CookMate AI</div>
     <div class="nav-links">
-        <a href="#">Home</a>
-        <a href="#">Recipes</a>
-        <a href="#">AI Chef</a>
-        <a href="#">Profile</a>
+        <a>Home</a>
+        <a>Search</a>
+        <a onclick="adminUnlock()">Admin Unlock</a>
     </div>
 </nav>
 
 <div class="container">
-    <div class="pricing-section">
-        <h2>Choose Your Plan</h2>
-        <div class="pricing-grid">
-            <div class="price-card">
-                <h3>Free Trial</h3>
-                <div class="price">$0</div>
-                <p>Enjoy for 7 days</p>
-                <button class="btn" onclick="alert('Starting 7-Day Trial...')">Try Now</button>
-            </div>
-            <div class="price-card popular">
-                <h3>Monthly</h3>
-                <div class="price">$4.99</div>
-                <p>Unlock everything</p>
-                <button class="btn" onclick="alert('Redirecting to Monthly Payment...')">Subscribe</button>
-            </div>
-            <div class="price-card">
-                <h3>Yearly</h3>
-                <div class="price">$39.90</div>
-                <p>Save $20 annually</p>
-                <button class="btn" onclick="alert('Redirecting to Yearly Payment...')">Subscribe</button>
-            </div>
-        </div>
+    <div class="welcome-text">
+        <p style="color: #888;">Hello, Chef!</p>
+        <h2 style="font-size: 1.6rem;">What do you want to cook today?</h2>
     </div>
 
-    <h2 style="margin-bottom: 1.5rem;">Explore Recipes</h2>
-    <div class="recipe-grid">
+    <div class="search-box">
+        <i class="fas fa-search" style="color: #888;"></i>
+        <input type="text" placeholder="Search recipes, ingredients...">
+    </div>
+
+    <div class="categories">
+        <div class="cat-btn active">All</div>
+        <div class="cat-btn">Myanmar</div>
+        <div class="cat-btn">Asian</div>
+        <div class="cat-btn">Fast Food</div>
+    </div>
+
+    <div id="pricing-area">
+        <h3>Premium Subscription</h3>
+        <p style="font-size: 0.9rem; color: #666;">Unlock all AI recipes and features</p>
+        
+        <div class="pricing-grid">
+            <div class="price-card">
+                <h4>7-Day Free</h4>
+                <div style="font-size: 1.5rem; font-weight: bold; margin: 10px 0;">$0</div>
+                <button class="btn">Start Trial</button>
+            </div>
+            <div class="price-card popular">
+                <h4>Monthly</h4>
+                <div style="font-size: 1.5rem; font-weight: bold; margin: 10px 0;">$4.99</div>
+                <button class="btn">Get Started</button>
+            </div>
+        </div>
+        <button onclick="adminUnlock()" style="margin-top: 15px; background: none; border: none; color: #888; cursor: pointer; text-decoration: underline;">
+            Have an Admin Code?
+        </button>
+    </div>
+
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <h3>Trending Recipes</h3>
+        <a style="color: var(--primary-orange); font-size: 0.9rem; text-decoration: none;">See all</a>
+    </div>
+
+    <div class="trending-grid">
         <div class="recipe-card">
-            <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c" class="recipe-img" alt="Chicken Curry">
-            <div class="recipe-content">
-                <h4>Chicken Curry (Myanmar)</h4>
-                <p style="color: #888; font-size: 0.9rem;">45 min • Easy</p>
+            <img src="https://images.unsplash.com/photo-1559847844-5315695dadae" class="recipe-img">
+            <div class="recipe-info">
+                <h4 style="font-size: 0.9rem;">Thai Basil Chicken</h4>
+                <p style="font-size: 0.8rem; color: #888; margin-top: 5px;">
+                    <i class="far fa-clock"></i> 20 min &nbsp; <i class="fas fa-star" style="color: gold;"></i> 4.8
+                </p>
             </div>
         </div>
         <div class="recipe-card">
-            <img src="https://images.unsplash.com/photo-1473093226795-af9932fe5856" class="recipe-img" alt="Spaghetti">
-            <div class="recipe-content">
-                <h4>Spaghetti Carbonara</h4>
-                <p style="color: #888; font-size: 0.9rem;">20 min • Medium</p>
-            </div>
-        </div>
-        <div class="recipe-card">
-            <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38" class="recipe-img" alt="Pizza">
-            <div class="recipe-content">
-                <h4>Home-made Pizza</h4>
-                <p style="color: #888; font-size: 0.9rem;">30 min • Easy</p>
+            <img src="https://images.unsplash.com/photo-1546548970-71785318a17b" class="recipe-img">
+            <div class="recipe-info">
+                <h4 style="font-size: 0.9rem;">Spaghetti Carbonara</h4>
+                <p style="font-size: 0.8rem; color: #888; margin-top: 5px;">
+                    <i class="far fa-clock"></i> 25 min &nbsp; <i class="fas fa-star" style="color: gold;"></i> 4.7
+                </p>
             </div>
         </div>
     </div>
 </div>
 
 <div class="mobile-nav">
-    <i class="fas fa-home" style="color: #ff6b00;"></i>
+    <i class="fas fa-home active"></i>
     <i class="fas fa-search"></i>
     <i class="fas fa-robot"></i>
-    <i class="fas fa-user"></i>
+    <i class="fas fa-heart"></i>
 </div>
 
-</body>
-</html>
 <script>
-    function checkUnlockCode() {
-        const adminCode = "cx90mkow"; // Admin က သတ်မှတ်ထားတဲ့ ကုဒ်
-        const userEntry = prompt("Admin က ပေးထားသော Unlock Code ကို ရိုက်ထည့်ပါ:");
+    function adminUnlock() {
+        const correctCode = "cx90mkow";
+        const userInput = prompt("Admin Unlock Code ကို ရိုက်ထည့်ပါ:");
 
-        if (userEntry === adminCode) {
-            alert("ဂုဏ်ယူပါတယ်။ Feature အားလုံးကို Unlocked လုပ်ပြီးပါပြီ။");
+        if (userInput === correctCode) {
+            alert("✨ Premium Unlocked Successfully! ✨");
             
-            // UI ကို ပြောင်းလဲပေးခြင်း
-            document.body.style.border = "5px solid #ff6b00"; // Unlocked ဖြစ်ကြောင်း သိသာအောင်
-            
-            // Pricing Section ကို ဖျောက်လိုက်ပြီး "Premium Active" လို့ ပြောင်းပါမယ်
-            const pricingSection = document.querySelector('.pricing-section');
-            pricingSection.innerHTML = `
-                <div style="background: #fff7f0; padding: 20px; border-radius: 15px; border: 2px dashed #ff6b00;">
-                    <h2 style="color: #ff6b00;">✨ Premium Unlocked ✨</h2>
-                    <p>Admin Code (cx90mkow) ဖြင့် အားလုံးကို အသုံးပြုနိုင်ပါပြီ။</p>
+            // Pricing Area ကို ဖျောက်ပြီး Unlocked Message ပြမယ်
+            const pricingArea = document.getElementById('pricing-area');
+            pricingArea.innerHTML = `
+                <div style="background: #e7f9ee; border: 2px solid #28a745; padding: 20px; border-radius: 15px;">
+                    <h3 style="color: #28a745;"><i class="fas fa-check-circle"></i> All Features Unlocked</h3>
+                    <p style="color: #555; margin-top: 5px;">Admin Code: <b>${correctCode}</b> ကို အသုံးပြုထားပါသည်။</p>
                 </div>
             `;
             
-            // Lock ဖြစ်နေတဲ့ Feature တွေရှိရင် ဒီနေရာမှာ ပွင့်သွားအောင် ရေးလို့ရပါတယ်
-        } else {
-            alert("ကုဒ်မှားနေပါသည်။ Admin ကို ပြန်လည်မေးမြန်းပါ။");
+            // Design ကို Premium ဖြစ်ကြောင်း သိသာစေရန် Accent ပြောင်းခြင်း (Optional)
+            document.querySelector('.logo').innerHTML = "CookMate AI <span style='font-size: 0.8rem; background: gold; color: black; padding: 2px 8px; border-radius: 10px;'>PRO</span>";
+        } else if (userInput !== null) {
+            alert("ကုဒ်မှားနေပါသည်။ Admin ကို ပြန်မေးပါ။");
         }
     }
 </script>
+
+</body>
+</html>
