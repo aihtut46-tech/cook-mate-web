@@ -1,317 +1,527 @@
-<!DOCTYPE html>
-<html lang="my">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CookMate AI - Premium Web App</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        :root {
-            --primary-orange: #ff6b00;
-            --bg-light: #f8f9fa;
-            --white: #ffffff;
-            --text-dark: #333;
-        }
+import React, { useState, useEffect } from 'react';
+import { ChevronRight, Clock, Star, Heart, Search, Home, Compass, ChefHat, Bookmark, User, Menu, X } from 'lucide-react';
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+const CookMateApp = () => {
+  const [currentScreen, setCurrentScreen] = useState('home');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [favorites, setFavorites] = useState(new Set());
+  const [selectedRecipe, setSelectedRecipe] = useState(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [isPremium, setIsPremium] = useState(false);
 
-        body {
-            background-color: var(--bg-light);
-            color: var(--text-dark);
-            padding-bottom: 70px; /* Mobile Nav အတွက် နေရာချန်ထားခြင်း */
-        }
+  // Mock recipe data
+  const recipes = [
+    {
+      id: 1,
+      name: 'Thai Basil Chicken',
+      time: 30,
+      rating: 4.8,
+      reviews: 2543,
+      category: 'Asian',
+      image: '🍗',
+      description: 'Fragrant Thai chicken with basil leaves and chilies',
+      difficulty: 'Easy',
+      servings: 4,
+      ingredients: ['Chicken breast', 'Thai basil', 'Garlic', 'Chilies', 'Fish sauce', 'Lime'],
+    },
+    {
+      id: 2,
+      name: 'Spaghetti Carbonara',
+      time: 25,
+      rating: 4.7,
+      reviews: 1892,
+      category: 'Italian',
+      image: '🍝',
+      description: 'Creamy Italian pasta with bacon and parmesan',
+      difficulty: 'Medium',
+      servings: 2,
+      ingredients: ['Spaghetti', 'Eggs', 'Pancetta', 'Parmesan', 'Black pepper'],
+    },
+    {
+      id: 3,
+      name: 'Fried Rice',
+      time: 20,
+      rating: 4.6,
+      reviews: 3102,
+      category: 'Asian',
+      image: '🍚',
+      description: 'Golden fried rice with vegetables and egg',
+      difficulty: 'Easy',
+      servings: 4,
+      ingredients: ['Rice', 'Eggs', 'Peas', 'Carrots', 'Soy sauce', 'Garlic'],
+    },
+    {
+      id: 4,
+      name: 'Chocolate Cake',
+      time: 45,
+      rating: 4.9,
+      reviews: 2156,
+      category: 'Dessert',
+      image: '🍰',
+      description: 'Rich, moist chocolate cake with ganache',
+      difficulty: 'Medium',
+      servings: 8,
+      ingredients: ['Flour', 'Cocoa', 'Eggs', 'Butter', 'Sugar', 'Milk'],
+    },
+    {
+      id: 5,
+      name: 'Pad Thai Noodles',
+      time: 25,
+      rating: 4.7,
+      reviews: 1534,
+      category: 'Asian',
+      image: '🥢',
+      description: 'Traditional Thai noodles with peanut sauce',
+      difficulty: 'Easy',
+      servings: 2,
+      ingredients: ['Rice noodles', 'Peanut butter', 'Lime', 'Bean sprouts', 'Shrimp', 'Eggs'],
+    },
+    {
+      id: 6,
+      name: 'Chicken Curry',
+      time: 40,
+      rating: 4.8,
+      reviews: 2789,
+      category: 'Myanmar',
+      image: '🍛',
+      description: 'Authentic Myanmar chicken curry with rice',
+      difficulty: 'Medium',
+      servings: 4,
+      ingredients: ['Chicken', 'Onion', 'Garlic', 'Ginger', 'Curry powder', 'Coconut milk'],
+    },
+  ];
 
-        /* Navigation */
-        nav {
-            background: var(--white);
-            padding: 1rem 5%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
+  const filteredRecipes = recipes.filter(recipe =>
+    recipe.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    recipe.category.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
-        .logo {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: var(--primary-orange);
-        }
-
-        .nav-links a {
-            margin-left: 20px;
-            text-decoration: none;
-            color: #666;
-            font-weight: 500;
-            cursor: pointer;
-        }
-
-        /* Container */
-        .container {
-            max-width: 1000px;
-            margin: 2rem auto;
-            padding: 0 20px;
-        }
-
-        /* Header Text */
-        .welcome-text {
-            margin-bottom: 1.5rem;
-        }
-
-        /* Search Bar */
-        .search-box {
-            background: #f1f1f1;
-            padding: 12px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .search-box input {
-            background: transparent;
-            border: none;
-            outline: none;
-            margin-left: 10px;
-            width: 100%;
-            font-size: 1rem;
-        }
-
-        /* Categories */
-        .categories {
-            display: flex;
-            gap: 10px;
-            overflow-x: auto;
-            padding-bottom: 15px;
-            margin-bottom: 20px;
-        }
-
-        .cat-btn {
-            background: var(--white);
-            padding: 8px 20px;
-            border-radius: 20px;
-            white-space: nowrap;
-            border: 1px solid #eee;
-            cursor: pointer;
-        }
-
-        .cat-btn.active {
-            background: var(--primary-orange);
-            color: white;
-            border: none;
-        }
-
-        /* Pricing Section */
-        #pricing-area {
-            text-align: center;
-            margin: 2rem 0;
-            background: var(--white);
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-        }
-
-        .pricing-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-
-        .price-card {
-            padding: 20px;
-            border: 1px solid #eee;
-            border-radius: 15px;
-            transition: 0.3s;
-        }
-
-        .price-card.popular {
-            border: 2px solid var(--primary-orange);
-            background: #fff9f5;
-        }
-
-        .btn {
-            background: var(--primary-orange);
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 25px;
-            width: 100%;
-            margin-top: 15px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        /* Recipe Cards */
-        .trending-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
-        .recipe-card {
-            background: var(--white);
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-            cursor: pointer;
-        }
-
-        .recipe-img {
-            width: 100%;
-            height: 150px;
-            object-fit: cover;
-        }
-
-        .recipe-info {
-            padding: 12px;
-        }
-
-        /* Mobile Bottom Nav */
-        .mobile-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background: var(--white);
-            display: flex;
-            justify-content: space-around;
-            padding: 15px;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-            z-index: 1000;
-        }
-
-        .mobile-nav i {
-            font-size: 1.2rem;
-            color: #ccc;
-            cursor: pointer;
-        }
-
-        .mobile-nav i.active {
-            color: var(--primary-orange);
-        }
-
-        @media (min-width: 769px) {
-            .mobile-nav { display: none; }
-            .trending-grid { grid-template-columns: 1fr 1fr 1fr; }
-        }
-    </style>
-</head>
-<body>
-
-<nav>
-    <div class="logo">CookMate AI</div>
-    <div class="nav-links">
-        <a>Home</a>
-        <a>Search</a>
-        <a onclick="adminUnlock()">Admin Unlock</a>
-    </div>
-</nav>
-
-<div class="container">
-    <div class="welcome-text">
-        <p style="color: #888;">Hello, Chef!</p>
-        <h2 style="font-size: 1.6rem;">What do you want to cook today?</h2>
-    </div>
-
-    <div class="search-box">
-        <i class="fas fa-search" style="color: #888;"></i>
-        <input type="text" placeholder="Search recipes, ingredients...">
-    </div>
-
-    <div class="categories">
-        <div class="cat-btn active">All</div>
-        <div class="cat-btn">Myanmar</div>
-        <div class="cat-btn">Asian</div>
-        <div class="cat-btn">Fast Food</div>
-    </div>
-
-    <div id="pricing-area">
-        <h3>Premium Subscription</h3>
-        <p style="font-size: 0.9rem; color: #666;">Unlock all AI recipes and features</p>
-        
-        <div class="pricing-grid">
-            <div class="price-card">
-                <h4>7-Day Free</h4>
-                <div style="font-size: 1.5rem; font-weight: bold; margin: 10px 0;">$0</div>
-                <button class="btn">Start Trial</button>
-            </div>
-            <div class="price-card popular">
-                <h4>Monthly</h4>
-                <div style="font-size: 1.5rem; font-weight: bold; margin: 10px 0;">$4.99</div>
-                <button class="btn">Get Started</button>
-            </div>
-        </div>
-        <button onclick="adminUnlock()" style="margin-top: 15px; background: none; border: none; color: #888; cursor: pointer; text-decoration: underline;">
-            Have an Admin Code?
-        </button>
-    </div>
-
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-        <h3>Trending Recipes</h3>
-        <a style="color: var(--primary-orange); font-size: 0.9rem; text-decoration: none;">See all</a>
-    </div>
-
-    <div class="trending-grid">
-        <div class="recipe-card">
-            <img src="https://images.unsplash.com/photo-1559847844-5315695dadae" class="recipe-img">
-            <div class="recipe-info">
-                <h4 style="font-size: 0.9rem;">Thai Basil Chicken</h4>
-                <p style="font-size: 0.8rem; color: #888; margin-top: 5px;">
-                    <i class="far fa-clock"></i> 20 min &nbsp; <i class="fas fa-star" style="color: gold;"></i> 4.8
-                </p>
-            </div>
-        </div>
-        <div class="recipe-card">
-            <img src="https://images.unsplash.com/photo-1546548970-71785318a17b" class="recipe-img">
-            <div class="recipe-info">
-                <h4 style="font-size: 0.9rem;">Spaghetti Carbonara</h4>
-                <p style="font-size: 0.8rem; color: #888; margin-top: 5px;">
-                    <i class="far fa-clock"></i> 25 min &nbsp; <i class="fas fa-star" style="color: gold;"></i> 4.7
-                </p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="mobile-nav">
-    <i class="fas fa-home active"></i>
-    <i class="fas fa-search"></i>
-    <i class="fas fa-robot"></i>
-    <i class="fas fa-heart"></i>
-</div>
-
-<script>
-    function adminUnlock() {
-        const correctCode = "cx90mkow";
-        const userInput = prompt("Admin Unlock Code ကို ရိုက်ထည့်ပါ:");
-
-        if (userInput === correctCode) {
-            alert("✨ Premium Unlocked Successfully! ✨");
-            
-            // Pricing Area ကို ဖျောက်ပြီး Unlocked Message ပြမယ်
-            const pricingArea = document.getElementById('pricing-area');
-            pricingArea.innerHTML = `
-                <div style="background: #e7f9ee; border: 2px solid #28a745; padding: 20px; border-radius: 15px;">
-                    <h3 style="color: #28a745;"><i class="fas fa-check-circle"></i> All Features Unlocked</h3>
-                    <p style="color: #555; margin-top: 5px;">Admin Code: <b>${correctCode}</b> ကို အသုံးပြုထားပါသည်။</p>
-                </div>
-            `;
-            
-            // Design ကို Premium ဖြစ်ကြောင်း သိသာစေရန် Accent ပြောင်းခြင်း (Optional)
-            document.querySelector('.logo').innerHTML = "CookMate AI <span style='font-size: 0.8rem; background: gold; color: black; padding: 2px 8px; border-radius: 10px;'>PRO</span>";
-        } else if (userInput !== null) {
-            alert("ကုဒ်မှားနေပါသည်။ Admin ကို ပြန်မေးပါ။");
-        }
+  const toggleFavorite = (id) => {
+    const newFavorites = new Set(favorites);
+    if (newFavorites.has(id)) {
+      newFavorites.delete(id);
+    } else {
+      newFavorites.add(id);
     }
-</script>
+    setFavorites(newFavorites);
+  };
 
-</body>
-</html>
+  const categories = ['All', 'Myanmar', 'Asian', 'Fast Food', 'Dessert'];
+
+  // Home Screen
+  const HomeScreen = () => (
+    <div className="flex-1 overflow-y-auto pb-24">
+      {/* Header */}
+      <div className="bg-gradient-to-b from-orange-50 to-white px-6 pt-8 pb-6 border-b border-orange-100">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Hello, Chef 👋</h1>
+            <p className="text-gray-600 text-sm mt-1">What do you want to cook today?</p>
+          </div>
+          <button onClick={() => setMenuOpen(!menuOpen)} className="p-2 hover:bg-orange-100 rounded-full transition">
+            {menuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
+
+        {/* Search Bar */}
+        <div className="relative">
+          <Search size={20} className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Search recipes, ingredients..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full bg-white border border-gray-200 rounded-xl pl-12 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent shadow-sm"
+          />
+        </div>
+      </div>
+
+      {/* Category Pills */}
+      <div className="px-6 py-5 flex gap-3 overflow-x-auto scrollbar-hide border-b border-gray-100">
+        {categories.map((cat) => (
+          <button
+            key={cat}
+            className="px-6 py-2 rounded-full font-medium text-sm whitespace-nowrap transition-all duration-200 bg-orange-500 text-white hover:bg-orange-600"
+          >
+            {cat}
+          </button>
+        ))}
+      </div>
+
+      {/* Trending Recipes */}
+      <div className="px-6 py-6">
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="text-xl font-bold text-gray-900">Trending Recipes</h2>
+          <button className="text-orange-500 text-sm font-medium hover:text-orange-600 transition">See All →</button>
+        </div>
+
+        <div className="grid grid-cols-3 gap-4 mb-8">
+          {recipes.slice(0, 3).map((recipe) => (
+            <div
+              key={recipe.id}
+              onClick={() => {
+                setSelectedRecipe(recipe);
+                setCurrentScreen('recipe-detail');
+              }}
+              className="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer transform hover:scale-105"
+            >
+              <div className="bg-gradient-to-br from-orange-200 to-orange-100 h-32 flex items-center justify-center text-5xl relative group">
+                {recipe.image}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleFavorite(recipe.id);
+                  }}
+                  className="absolute top-2 right-2 bg-white rounded-full p-1.5 shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  <Heart size={16} className={favorites.has(recipe.id) ? 'fill-red-500 text-red-500' : 'text-gray-400'} />
+                </button>
+              </div>
+              <div className="p-3">
+                <h3 className="font-bold text-sm text-gray-900 line-clamp-2">{recipe.name}</h3>
+                <div className="flex items-center gap-2 mt-2 text-xs text-gray-600">
+                  <Clock size={14} />
+                  <span>{recipe.time} min</span>
+                </div>
+                <div className="flex items-center gap-1 mt-1">
+                  <Star size={13} className="fill-yellow-400 text-yellow-400" />
+                  <span className="text-xs font-semibold text-gray-900">{recipe.rating}</span>
+                  <span className="text-xs text-gray-500">({recipe.reviews})</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Quick & Easy */}
+        <div className="mb-8">
+          <h2 className="text-xl font-bold text-gray-900 mb-4">Quick & Easy</h2>
+          <div className="space-y-3">
+            {filteredRecipes.length > 0 ? (
+              filteredRecipes.map((recipe) => (
+                <div
+                  key={recipe.id}
+                  onClick={() => {
+                    setSelectedRecipe(recipe);
+                    setCurrentScreen('recipe-detail');
+                  }}
+                  className="bg-white rounded-2xl p-4 flex items-center gap-4 shadow-sm hover:shadow-md transition-all cursor-pointer"
+                >
+                  <div className="bg-gradient-to-br from-orange-100 to-orange-50 rounded-xl w-20 h-20 flex items-center justify-center text-3xl flex-shrink-0">
+                    {recipe.image}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-bold text-gray-900 text-sm">{recipe.name}</h3>
+                    <p className="text-xs text-gray-600 mt-1">{recipe.time} min • {recipe.difficulty}</p>
+                    <div className="flex items-center gap-2 mt-2">
+                      <Star size={12} className="fill-yellow-400 text-yellow-400" />
+                      <span className="text-xs font-semibold text-gray-900">{recipe.rating}</span>
+                      <span className="text-xs text-gray-500">• {recipe.category}</span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleFavorite(recipe.id);
+                    }}
+                    className="flex-shrink-0 p-2 hover:bg-orange-100 rounded-full transition"
+                  >
+                    <Heart size={18} className={favorites.has(recipe.id) ? 'fill-red-500 text-red-500' : 'text-gray-300'} />
+                  </button>
+                </div>
+              ))
+            ) : (
+              <div className="text-center py-8 text-gray-500">
+                <p>No recipes found. Try a different search.</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Recipe Detail Screen
+  const RecipeDetailScreen = () => selectedRecipe && (
+    <div className="flex-1 overflow-y-auto pb-24">
+      {/* Header with back button */}
+      <div className="bg-gradient-to-br from-orange-400 to-orange-500 px-6 py-4 flex items-center gap-4">
+        <button onClick={() => setCurrentScreen('home')} className="p-2 bg-white/20 hover:bg-white/30 rounded-full transition text-white">
+          ← Back
+        </button>
+        <h1 className="text-2xl font-bold text-white">{selectedRecipe.name}</h1>
+        <button
+          onClick={() => toggleFavorite(selectedRecipe.id)}
+          className="ml-auto p-2 bg-white/20 hover:bg-white/30 rounded-full transition text-white"
+        >
+          <Heart size={20} className={favorites.has(selectedRecipe.id) ? 'fill-white' : ''} />
+        </button>
+      </div>
+
+      {/* Recipe Image */}
+      <div className="bg-gradient-to-br from-orange-100 to-orange-50 h-48 flex items-center justify-center text-8xl">
+        {selectedRecipe.image}
+      </div>
+
+      {/* Recipe Info */}
+      <div className="px-6 py-5 bg-white border-b border-gray-100">
+        <div className="grid grid-cols-3 gap-4 mb-4">
+          <div className="text-center">
+            <Clock size={24} className="mx-auto text-orange-500 mb-2" />
+            <p className="text-2xl font-bold text-gray-900">{selectedRecipe.time}</p>
+            <p className="text-xs text-gray-600">minutes</p>
+          </div>
+          <div className="text-center">
+            <Star size={24} className="mx-auto text-orange-500 mb-2 fill-orange-500" />
+            <p className="text-2xl font-bold text-gray-900">{selectedRecipe.rating}</p>
+            <p className="text-xs text-gray-600">{selectedRecipe.reviews} reviews</p>
+          </div>
+          <div className="text-center">
+            <ChefHat size={24} className="mx-auto text-orange-500 mb-2" />
+            <p className="text-2xl font-bold text-gray-900">{selectedRecipe.servings}</p>
+            <p className="text-xs text-gray-600">servings</p>
+          </div>
+        </div>
+        <p className="text-gray-700 text-sm">{selectedRecipe.description}</p>
+      </div>
+
+      {/* Ingredients */}
+      <div className="px-6 py-5 border-b border-gray-100">
+        <h3 className="font-bold text-lg text-gray-900 mb-4">Ingredients</h3>
+        <div className="space-y-3">
+          {selectedRecipe.ingredients.map((ingredient, idx) => (
+            <div key={idx} className="flex items-center gap-3 text-gray-700">
+              <div className="w-5 h-5 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0">
+                <span className="text-xs font-bold text-orange-600">✓</span>
+              </div>
+              <span className="text-sm">{ingredient}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Start Cooking Button */}
+      <div className="px-6 py-5">
+        <button
+          onClick={() => {
+            setCurrentScreen('cooking');
+            setSelectedRecipe(selectedRecipe);
+          }}
+          className="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white py-4 rounded-xl font-bold text-lg hover:from-orange-600 hover:to-orange-700 transition shadow-lg hover:shadow-xl"
+        >
+          Start Cooking →
+        </button>
+      </div>
+    </div>
+  );
+
+  // Cooking Screen
+  const CookingScreen = () => (
+    <div className="flex-1 overflow-y-auto pb-24">
+      {/* Header */}
+      <div className="bg-gradient-to-br from-orange-400 to-orange-500 px-6 py-4 flex items-center justify-between">
+        <button onClick={() => setCurrentScreen('recipe-detail')} className="p-2 bg-white/20 hover:bg-white/30 rounded-full transition text-white">
+          ← Back
+        </button>
+        <h1 className="text-xl font-bold text-white">Step 1 of 5</h1>
+        <div className="text-white text-sm font-medium">20:00</div>
+      </div>
+
+      {/* Progress Bar */}
+      <div className="bg-white px-6 py-4 border-b border-gray-100">
+        <div className="w-full bg-gray-200 rounded-full h-2">
+          <div className="bg-gradient-to-r from-orange-400 to-orange-500 h-2 rounded-full" style={{ width: '20%' }}></div>
+        </div>
+      </div>
+
+      {/* Step Content */}
+      <div className="px-6 py-8 space-y-6">
+        <div className="bg-gradient-to-br from-orange-100 to-orange-50 rounded-2xl h-64 flex items-center justify-center text-7xl">
+          {selectedRecipe?.image}
+        </div>
+
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-3">Prepare the ingredients</h2>
+          <p className="text-gray-700 text-base leading-relaxed mb-4">
+            Cut chicken into bite-sized pieces and cook on medium heat until golden brown. This should take about 5-7 minutes, stirring occasionally.
+          </p>
+          <div className="bg-orange-50 border-l-4 border-orange-400 p-4 rounded">
+            <p className="text-sm text-orange-900">
+              <strong>💡 Tip:</strong> Cook on medium heat for better flavor and to avoid burning.
+            </p>
+          </div>
+        </div>
+
+        {/* Timer */}
+        <div className="bg-white rounded-2xl p-8 text-center border border-gray-200">
+          <div className="text-6xl font-bold text-orange-500 mb-2">5:00</div>
+          <p className="text-gray-600 text-sm mb-6">Remaining</p>
+          <div className="flex gap-4 justify-center">
+            <button className="px-8 py-3 bg-orange-500 text-white rounded-full font-bold hover:bg-orange-600 transition">
+              ▶ Start Timer
+            </button>
+            <button className="px-8 py-3 bg-gray-200 text-gray-700 rounded-full font-bold hover:bg-gray-300 transition">
+              Reset
+            </button>
+          </div>
+        </div>
+
+        {/* Navigation */}
+        <div className="flex gap-4">
+          <button className="flex-1 py-3 bg-gray-200 text-gray-700 rounded-xl font-bold hover:bg-gray-300 transition">
+            Previous
+          </button>
+          <button className="flex-1 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl font-bold hover:from-orange-600 hover:to-orange-700 transition">
+            Next
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Saved Recipes Screen
+  const SavedScreen = () => (
+    <div className="flex-1 overflow-y-auto pb-24">
+      <div className="bg-gradient-to-b from-orange-50 to-white px-6 pt-8 pb-6 border-b border-orange-100">
+        <h1 className="text-3xl font-bold text-gray-900">Saved Recipes</h1>
+        <p className="text-gray-600 text-sm mt-1">{favorites.size} recipes saved</p>
+      </div>
+
+      <div className="px-6 py-6 space-y-4">
+        {recipes
+          .filter((r) => favorites.has(r.id))
+          .map((recipe) => (
+            <div
+              key={recipe.id}
+              onClick={() => {
+                setSelectedRecipe(recipe);
+                setCurrentScreen('recipe-detail');
+              }}
+              className="bg-white rounded-2xl p-4 flex items-center gap-4 shadow-sm hover:shadow-md transition-all cursor-pointer"
+            >
+              <div className="bg-gradient-to-br from-orange-100 to-orange-50 rounded-xl w-24 h-24 flex items-center justify-center text-4xl flex-shrink-0">
+                {recipe.image}
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="font-bold text-gray-900">{recipe.name}</h3>
+                <p className="text-sm text-gray-600 mt-1">{recipe.time} min • {recipe.difficulty}</p>
+                <div className="flex items-center gap-2 mt-2">
+                  <Star size={14} className="fill-yellow-400 text-yellow-400" />
+                  <span className="text-sm font-semibold text-gray-900">{recipe.rating}</span>
+                </div>
+              </div>
+            </div>
+          ))}
+
+        {favorites.size === 0 && (
+          <div className="text-center py-12 text-gray-500">
+            <Bookmark size={48} className="mx-auto mb-4 text-gray-300" />
+            <p className="text-lg font-medium">No saved recipes yet</p>
+            <p className="text-sm mt-2">Save recipes to access them here</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  // Profile Screen
+  const ProfileScreen = () => (
+    <div className="flex-1 overflow-y-auto pb-24">
+      <div className="bg-gradient-to-br from-orange-400 to-orange-500 px-6 py-12 text-center text-white">
+        <div className="w-24 h-24 bg-white rounded-full mx-auto mb-4 flex items-center justify-center text-4xl">
+          👨‍🍳
+        </div>
+        <h1 className="text-2xl font-bold mb-2">Chef AI</h1>
+        <p className="text-orange-100">Your personal cooking assistant</p>
+      </div>
+
+      <div className="px-6 py-8 space-y-4">
+        <div className="bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-200 rounded-2xl p-6">
+          <div className="flex items-start gap-4">
+            <div className="text-3xl">⭐</div>
+            <div className="flex-1">
+              <h3 className="font-bold text-gray-900 mb-2">Premium Plan</h3>
+              <p className="text-sm text-gray-700 mb-3">Unlock all features and premium recipes</p>
+              <button className="bg-purple-500 text-white px-4 py-2 rounded-lg font-bold text-sm hover:bg-purple-600 transition">
+                Upgrade Now
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <button className="w-full bg-white border border-gray-200 rounded-xl p-4 text-left hover:bg-gray-50 transition">
+          <p className="font-bold text-gray-900">Download Recipes</p>
+          <p className="text-sm text-gray-600 mt-1">Save recipes for offline access</p>
+        </button>
+
+        <button className="w-full bg-white border border-gray-200 rounded-xl p-4 text-left hover:bg-gray-50 transition">
+          <p className="font-bold text-gray-900">Cooking History</p>
+          <p className="text-sm text-gray-600 mt-1">View recipes you've cooked</p>
+        </button>
+
+        <button className="w-full bg-white border border-gray-200 rounded-xl p-4 text-left hover:bg-gray-50 transition">
+          <p className="font-bold text-gray-900">Help & Support</p>
+          <p className="text-sm text-gray-600 mt-1">Get help with the app</p>
+        </button>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="fixed inset-0 bg-white flex flex-col max-w-md mx-auto relative overflow-hidden">
+      {/* Main Content */}
+      {currentScreen === 'home' && <HomeScreen />}
+      {currentScreen === 'recipe-detail' && <RecipeDetailScreen />}
+      {currentScreen === 'cooking' && <CookingScreen />}
+      {currentScreen === 'saved' && <SavedScreen />}
+      {currentScreen === 'profile' && <ProfileScreen />}
+
+      {/* Bottom Navigation */}
+      <div className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white border-t border-gray-200 flex items-center justify-around h-20 shadow-2xl">
+        <button
+          onClick={() => setCurrentScreen('home')}
+          className={`flex flex-col items-center justify-center w-full h-full gap-1 transition-colors ${
+            currentScreen === 'home' ? 'text-orange-500' : 'text-gray-600 hover:text-orange-400'
+          }`}
+        >
+          <Home size={24} />
+          <span className="text-xs font-medium">Home</span>
+        </button>
+        <button
+          onClick={() => setCurrentScreen('home')}
+          className="flex flex-col items-center justify-center w-full h-full gap-1 text-gray-600 hover:text-orange-400 transition-colors"
+        >
+          <Search size={24} />
+          <span className="text-xs font-medium">Search</span>
+        </button>
+        <button
+          onClick={() => setCurrentScreen('home')}
+          className="flex flex-col items-center justify-center w-full h-full gap-1 text-gray-600 hover:text-orange-400 transition-colors"
+        >
+          <ChefHat size={24} />
+          <span className="text-xs font-medium">Chef</span>
+        </button>
+        <button
+          onClick={() => setCurrentScreen('saved')}
+          className={`flex flex-col items-center justify-center w-full h-full gap-1 transition-colors ${
+            currentScreen === 'saved' ? 'text-orange-500' : 'text-gray-600 hover:text-orange-400'
+          }`}
+        >
+          <Bookmark size={24} />
+          <span className="text-xs font-medium">Saved</span>
+        </button>
+        <button
+          onClick={() => setCurrentScreen('profile')}
+          className={`flex flex-col items-center justify-center w-full h-full gap-1 transition-colors ${
+            currentScreen === 'profile' ? 'text-orange-500' : 'text-gray-600 hover:text-orange-400'
+          }`}
+        >
+          <User size={24} />
+          <span className="text-xs font-medium">Profile</span>
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default CookMateApp
