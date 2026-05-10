@@ -1,527 +1,295 @@
-import React, { useState, useEffect } from 'react';
-import { ChevronRight, Clock, Star, Heart, Search, Home, Compass, ChefHat, Bookmark, User, Menu, X } from 'lucide-react';
+import React, { useState } from 'react';
+import {
+  Clock,
+  Star,
+  Heart,
+  Search,
+  Home,
+  ChefHat,
+  Bookmark,
+  User,
+  Menu,
+  X
+} from 'lucide-react';
 
 const CookMateApp = () => {
   const [currentScreen, setCurrentScreen] = useState('home');
   const [searchQuery, setSearchQuery] = useState('');
-  const [favorites, setFavorites] = useState(new Set());
+  const [favorites, setFavorites] = useState([]);
   const [selectedRecipe, setSelectedRecipe] = useState(null);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [isPremium, setIsPremium] = useState(false);
 
-  // Mock recipe data
   const recipes = [
     {
       id: 1,
       name: 'Thai Basil Chicken',
       time: 30,
       rating: 4.8,
-      reviews: 2543,
       category: 'Asian',
       image: '🍗',
       description: 'Fragrant Thai chicken with basil leaves and chilies',
       difficulty: 'Easy',
       servings: 4,
-      ingredients: ['Chicken breast', 'Thai basil', 'Garlic', 'Chilies', 'Fish sauce', 'Lime'],
+      ingredients: [
+        'Chicken breast',
+        'Thai basil',
+        'Garlic',
+        'Chilies'
+      ]
     },
     {
       id: 2,
       name: 'Spaghetti Carbonara',
       time: 25,
       rating: 4.7,
-      reviews: 1892,
       category: 'Italian',
       image: '🍝',
-      description: 'Creamy Italian pasta with bacon and parmesan',
+      description: 'Creamy pasta with bacon and parmesan',
       difficulty: 'Medium',
       servings: 2,
-      ingredients: ['Spaghetti', 'Eggs', 'Pancetta', 'Parmesan', 'Black pepper'],
+      ingredients: [
+        'Spaghetti',
+        'Eggs',
+        'Parmesan'
+      ]
     },
     {
       id: 3,
-      name: 'Fried Rice',
-      time: 20,
-      rating: 4.6,
-      reviews: 3102,
-      category: 'Asian',
-      image: '🍚',
-      description: 'Golden fried rice with vegetables and egg',
-      difficulty: 'Easy',
-      servings: 4,
-      ingredients: ['Rice', 'Eggs', 'Peas', 'Carrots', 'Soy sauce', 'Garlic'],
-    },
-    {
-      id: 4,
-      name: 'Chocolate Cake',
-      time: 45,
-      rating: 4.9,
-      reviews: 2156,
-      category: 'Dessert',
-      image: '🍰',
-      description: 'Rich, moist chocolate cake with ganache',
-      difficulty: 'Medium',
-      servings: 8,
-      ingredients: ['Flour', 'Cocoa', 'Eggs', 'Butter', 'Sugar', 'Milk'],
-    },
-    {
-      id: 5,
-      name: 'Pad Thai Noodles',
-      time: 25,
-      rating: 4.7,
-      reviews: 1534,
-      category: 'Asian',
-      image: '🥢',
-      description: 'Traditional Thai noodles with peanut sauce',
-      difficulty: 'Easy',
-      servings: 2,
-      ingredients: ['Rice noodles', 'Peanut butter', 'Lime', 'Bean sprouts', 'Shrimp', 'Eggs'],
-    },
-    {
-      id: 6,
       name: 'Chicken Curry',
       time: 40,
-      rating: 4.8,
-      reviews: 2789,
+      rating: 4.9,
       category: 'Myanmar',
       image: '🍛',
-      description: 'Authentic Myanmar chicken curry with rice',
+      description: 'Authentic Myanmar chicken curry',
       difficulty: 'Medium',
       servings: 4,
-      ingredients: ['Chicken', 'Onion', 'Garlic', 'Ginger', 'Curry powder', 'Coconut milk'],
-    },
+      ingredients: [
+        'Chicken',
+        'Onion',
+        'Garlic',
+        'Curry powder'
+      ]
+    }
   ];
 
-  const filteredRecipes = recipes.filter(recipe =>
-    recipe.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    recipe.category.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredRecipes = recipes.filter((recipe) =>
+    recipe.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const toggleFavorite = (id) => {
-    const newFavorites = new Set(favorites);
-    if (newFavorites.has(id)) {
-      newFavorites.delete(id);
+    if (favorites.includes(id)) {
+      setFavorites(favorites.filter((item) => item !== id));
     } else {
-      newFavorites.add(id);
+      setFavorites([...favorites, id]);
     }
-    setFavorites(newFavorites);
   };
 
-  const categories = ['All', 'Myanmar', 'Asian', 'Fast Food', 'Dessert'];
-
-  // Home Screen
   const HomeScreen = () => (
     <div className="flex-1 overflow-y-auto pb-24">
       {/* Header */}
-      <div className="bg-gradient-to-b from-orange-50 to-white px-6 pt-8 pb-6 border-b border-orange-100">
-        <div className="flex items-center justify-between mb-6">
+      <div className="bg-orange-50 px-5 pt-8 pb-5">
+        <div className="flex items-center justify-between mb-5">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Hello, Chef 👋</h1>
-            <p className="text-gray-600 text-sm mt-1">What do you want to cook today?</p>
+            <h1 className="text-3xl font-bold text-gray-900">
+              Hello Chef 👋
+            </h1>
+            <p className="text-gray-500 text-sm mt-1">
+              Find your favorite recipe
+            </p>
           </div>
-          <button onClick={() => setMenuOpen(!menuOpen)} className="p-2 hover:bg-orange-100 rounded-full transition">
-            {menuOpen ? <X size={24} /> : <Menu size={24} />}
+
+          <button className="p-2 rounded-full hover:bg-orange-100">
+            <Menu size={24} />
           </button>
         </div>
 
-        {/* Search Bar */}
+        {/* Search */}
         <div className="relative">
-          <Search size={20} className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
+          <Search
+            size={18}
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+          />
+
           <input
             type="text"
-            placeholder="Search recipes, ingredients..."
+            placeholder="Search recipes..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-white border border-gray-200 rounded-xl pl-12 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent shadow-sm"
+            className="w-full bg-white border border-gray-200 rounded-xl pl-11 pr-4 py-3 outline-none focus:ring-2 focus:ring-orange-400"
           />
         </div>
       </div>
 
-      {/* Category Pills */}
-      <div className="px-6 py-5 flex gap-3 overflow-x-auto scrollbar-hide border-b border-gray-100">
-        {categories.map((cat) => (
-          <button
-            key={cat}
-            className="px-6 py-2 rounded-full font-medium text-sm whitespace-nowrap transition-all duration-200 bg-orange-500 text-white hover:bg-orange-600"
+      {/* Recipes */}
+      <div className="p-5 space-y-4">
+        {filteredRecipes.map((recipe) => (
+          <div
+            key={recipe.id}
+            onClick={() => {
+              setSelectedRecipe(recipe);
+              setCurrentScreen('detail');
+            }}
+            className="bg-white rounded-2xl shadow-sm p-4 flex gap-4 cursor-pointer hover:shadow-md transition"
           >
-            {cat}
-          </button>
-        ))}
-      </div>
+            <div className="w-24 h-24 rounded-2xl bg-orange-100 flex items-center justify-center text-5xl">
+              {recipe.image}
+            </div>
 
-      {/* Trending Recipes */}
-      <div className="px-6 py-6">
-        <div className="flex items-center justify-between mb-5">
-          <h2 className="text-xl font-bold text-gray-900">Trending Recipes</h2>
-          <button className="text-orange-500 text-sm font-medium hover:text-orange-600 transition">See All →</button>
-        </div>
+            <div className="flex-1">
+              <div className="flex items-start justify-between">
+                <div>
+                  <h2 className="font-bold text-gray-900 text-lg">
+                    {recipe.name}
+                  </h2>
 
-        <div className="grid grid-cols-3 gap-4 mb-8">
-          {recipes.slice(0, 3).map((recipe) => (
-            <div
-              key={recipe.id}
-              onClick={() => {
-                setSelectedRecipe(recipe);
-                setCurrentScreen('recipe-detail');
-              }}
-              className="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer transform hover:scale-105"
-            >
-              <div className="bg-gradient-to-br from-orange-200 to-orange-100 h-32 flex items-center justify-center text-5xl relative group">
-                {recipe.image}
+                  <p className="text-sm text-gray-500 mt-1">
+                    {recipe.category}
+                  </p>
+                </div>
+
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
                     toggleFavorite(recipe.id);
                   }}
-                  className="absolute top-2 right-2 bg-white rounded-full p-1.5 shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
                 >
-                  <Heart size={16} className={favorites.has(recipe.id) ? 'fill-red-500 text-red-500' : 'text-gray-400'} />
+                  <Heart
+                    size={20}
+                    className={
+                      favorites.includes(recipe.id)
+                        ? 'fill-red-500 text-red-500'
+                        : 'text-gray-400'
+                    }
+                  />
                 </button>
               </div>
-              <div className="p-3">
-                <h3 className="font-bold text-sm text-gray-900 line-clamp-2">{recipe.name}</h3>
-                <div className="flex items-center gap-2 mt-2 text-xs text-gray-600">
+
+              <div className="flex items-center gap-4 mt-4 text-sm text-gray-500">
+                <div className="flex items-center gap-1">
                   <Clock size={14} />
-                  <span>{recipe.time} min</span>
+                  {recipe.time} min
                 </div>
-                <div className="flex items-center gap-1 mt-1">
-                  <Star size={13} className="fill-yellow-400 text-yellow-400" />
-                  <span className="text-xs font-semibold text-gray-900">{recipe.rating}</span>
-                  <span className="text-xs text-gray-500">({recipe.reviews})</span>
+
+                <div className="flex items-center gap-1">
+                  <Star
+                    size={14}
+                    className="fill-yellow-400 text-yellow-400"
+                  />
+                  {recipe.rating}
                 </div>
               </div>
             </div>
-          ))}
-        </div>
-
-        {/* Quick & Easy */}
-        <div className="mb-8">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Quick & Easy</h2>
-          <div className="space-y-3">
-            {filteredRecipes.length > 0 ? (
-              filteredRecipes.map((recipe) => (
-                <div
-                  key={recipe.id}
-                  onClick={() => {
-                    setSelectedRecipe(recipe);
-                    setCurrentScreen('recipe-detail');
-                  }}
-                  className="bg-white rounded-2xl p-4 flex items-center gap-4 shadow-sm hover:shadow-md transition-all cursor-pointer"
-                >
-                  <div className="bg-gradient-to-br from-orange-100 to-orange-50 rounded-xl w-20 h-20 flex items-center justify-center text-3xl flex-shrink-0">
-                    {recipe.image}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-gray-900 text-sm">{recipe.name}</h3>
-                    <p className="text-xs text-gray-600 mt-1">{recipe.time} min • {recipe.difficulty}</p>
-                    <div className="flex items-center gap-2 mt-2">
-                      <Star size={12} className="fill-yellow-400 text-yellow-400" />
-                      <span className="text-xs font-semibold text-gray-900">{recipe.rating}</span>
-                      <span className="text-xs text-gray-500">• {recipe.category}</span>
-                    </div>
-                  </div>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleFavorite(recipe.id);
-                    }}
-                    className="flex-shrink-0 p-2 hover:bg-orange-100 rounded-full transition"
-                  >
-                    <Heart size={18} className={favorites.has(recipe.id) ? 'fill-red-500 text-red-500' : 'text-gray-300'} />
-                  </button>
-                </div>
-              ))
-            ) : (
-              <div className="text-center py-8 text-gray-500">
-                <p>No recipes found. Try a different search.</p>
-              </div>
-            )}
           </div>
-        </div>
+        ))}
       </div>
     </div>
   );
 
-  // Recipe Detail Screen
-  const RecipeDetailScreen = () => selectedRecipe && (
+  const DetailScreen = () => (
     <div className="flex-1 overflow-y-auto pb-24">
-      {/* Header with back button */}
-      <div className="bg-gradient-to-br from-orange-400 to-orange-500 px-6 py-4 flex items-center gap-4">
-        <button onClick={() => setCurrentScreen('home')} className="p-2 bg-white/20 hover:bg-white/30 rounded-full transition text-white">
-          ← Back
-        </button>
-        <h1 className="text-2xl font-bold text-white">{selectedRecipe.name}</h1>
+      {/* Header */}
+      <div className="bg-orange-500 text-white p-5 flex items-center gap-4">
         <button
-          onClick={() => toggleFavorite(selectedRecipe.id)}
-          className="ml-auto p-2 bg-white/20 hover:bg-white/30 rounded-full transition text-white"
+          onClick={() => setCurrentScreen('home')}
+          className="bg-white/20 p-2 rounded-full"
         >
-          <Heart size={20} className={favorites.has(selectedRecipe.id) ? 'fill-white' : ''} />
+          ←
         </button>
+
+        <h1 className="text-xl font-bold">
+          {selectedRecipe.name}
+        </h1>
       </div>
 
-      {/* Recipe Image */}
-      <div className="bg-gradient-to-br from-orange-100 to-orange-50 h-48 flex items-center justify-center text-8xl">
+      {/* Image */}
+      <div className="h-56 bg-orange-100 flex items-center justify-center text-8xl">
         {selectedRecipe.image}
       </div>
 
-      {/* Recipe Info */}
-      <div className="px-6 py-5 bg-white border-b border-gray-100">
-        <div className="grid grid-cols-3 gap-4 mb-4">
-          <div className="text-center">
-            <Clock size={24} className="mx-auto text-orange-500 mb-2" />
-            <p className="text-2xl font-bold text-gray-900">{selectedRecipe.time}</p>
-            <p className="text-xs text-gray-600">minutes</p>
+      {/* Content */}
+      <div className="p-5">
+        <div className="flex items-center gap-5 mb-5">
+          <div>
+            <p className="text-gray-500 text-sm">Time</p>
+            <p className="font-bold">{selectedRecipe.time} min</p>
           </div>
-          <div className="text-center">
-            <Star size={24} className="mx-auto text-orange-500 mb-2 fill-orange-500" />
-            <p className="text-2xl font-bold text-gray-900">{selectedRecipe.rating}</p>
-            <p className="text-xs text-gray-600">{selectedRecipe.reviews} reviews</p>
+
+          <div>
+            <p className="text-gray-500 text-sm">Rating</p>
+            <p className="font-bold">{selectedRecipe.rating}</p>
           </div>
-          <div className="text-center">
-            <ChefHat size={24} className="mx-auto text-orange-500 mb-2" />
-            <p className="text-2xl font-bold text-gray-900">{selectedRecipe.servings}</p>
-            <p className="text-xs text-gray-600">servings</p>
+
+          <div>
+            <p className="text-gray-500 text-sm">Servings</p>
+            <p className="font-bold">{selectedRecipe.servings}</p>
           </div>
         </div>
-        <p className="text-gray-700 text-sm">{selectedRecipe.description}</p>
-      </div>
 
-      {/* Ingredients */}
-      <div className="px-6 py-5 border-b border-gray-100">
-        <h3 className="font-bold text-lg text-gray-900 mb-4">Ingredients</h3>
+        <p className="text-gray-700 mb-6">
+          {selectedRecipe.description}
+        </p>
+
+        <h2 className="text-lg font-bold mb-3">
+          Ingredients
+        </h2>
+
         <div className="space-y-3">
-          {selectedRecipe.ingredients.map((ingredient, idx) => (
-            <div key={idx} className="flex items-center gap-3 text-gray-700">
-              <div className="w-5 h-5 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0">
-                <span className="text-xs font-bold text-orange-600">✓</span>
-              </div>
-              <span className="text-sm">{ingredient}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Start Cooking Button */}
-      <div className="px-6 py-5">
-        <button
-          onClick={() => {
-            setCurrentScreen('cooking');
-            setSelectedRecipe(selectedRecipe);
-          }}
-          className="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white py-4 rounded-xl font-bold text-lg hover:from-orange-600 hover:to-orange-700 transition shadow-lg hover:shadow-xl"
-        >
-          Start Cooking →
-        </button>
-      </div>
-    </div>
-  );
-
-  // Cooking Screen
-  const CookingScreen = () => (
-    <div className="flex-1 overflow-y-auto pb-24">
-      {/* Header */}
-      <div className="bg-gradient-to-br from-orange-400 to-orange-500 px-6 py-4 flex items-center justify-between">
-        <button onClick={() => setCurrentScreen('recipe-detail')} className="p-2 bg-white/20 hover:bg-white/30 rounded-full transition text-white">
-          ← Back
-        </button>
-        <h1 className="text-xl font-bold text-white">Step 1 of 5</h1>
-        <div className="text-white text-sm font-medium">20:00</div>
-      </div>
-
-      {/* Progress Bar */}
-      <div className="bg-white px-6 py-4 border-b border-gray-100">
-        <div className="w-full bg-gray-200 rounded-full h-2">
-          <div className="bg-gradient-to-r from-orange-400 to-orange-500 h-2 rounded-full" style={{ width: '20%' }}></div>
-        </div>
-      </div>
-
-      {/* Step Content */}
-      <div className="px-6 py-8 space-y-6">
-        <div className="bg-gradient-to-br from-orange-100 to-orange-50 rounded-2xl h-64 flex items-center justify-center text-7xl">
-          {selectedRecipe?.image}
-        </div>
-
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-3">Prepare the ingredients</h2>
-          <p className="text-gray-700 text-base leading-relaxed mb-4">
-            Cut chicken into bite-sized pieces and cook on medium heat until golden brown. This should take about 5-7 minutes, stirring occasionally.
-          </p>
-          <div className="bg-orange-50 border-l-4 border-orange-400 p-4 rounded">
-            <p className="text-sm text-orange-900">
-              <strong>💡 Tip:</strong> Cook on medium heat for better flavor and to avoid burning.
-            </p>
-          </div>
-        </div>
-
-        {/* Timer */}
-        <div className="bg-white rounded-2xl p-8 text-center border border-gray-200">
-          <div className="text-6xl font-bold text-orange-500 mb-2">5:00</div>
-          <p className="text-gray-600 text-sm mb-6">Remaining</p>
-          <div className="flex gap-4 justify-center">
-            <button className="px-8 py-3 bg-orange-500 text-white rounded-full font-bold hover:bg-orange-600 transition">
-              ▶ Start Timer
-            </button>
-            <button className="px-8 py-3 bg-gray-200 text-gray-700 rounded-full font-bold hover:bg-gray-300 transition">
-              Reset
-            </button>
-          </div>
-        </div>
-
-        {/* Navigation */}
-        <div className="flex gap-4">
-          <button className="flex-1 py-3 bg-gray-200 text-gray-700 rounded-xl font-bold hover:bg-gray-300 transition">
-            Previous
-          </button>
-          <button className="flex-1 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl font-bold hover:from-orange-600 hover:to-orange-700 transition">
-            Next
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-
-  // Saved Recipes Screen
-  const SavedScreen = () => (
-    <div className="flex-1 overflow-y-auto pb-24">
-      <div className="bg-gradient-to-b from-orange-50 to-white px-6 pt-8 pb-6 border-b border-orange-100">
-        <h1 className="text-3xl font-bold text-gray-900">Saved Recipes</h1>
-        <p className="text-gray-600 text-sm mt-1">{favorites.size} recipes saved</p>
-      </div>
-
-      <div className="px-6 py-6 space-y-4">
-        {recipes
-          .filter((r) => favorites.has(r.id))
-          .map((recipe) => (
+          {selectedRecipe.ingredients.map((item, index) => (
             <div
-              key={recipe.id}
-              onClick={() => {
-                setSelectedRecipe(recipe);
-                setCurrentScreen('recipe-detail');
-              }}
-              className="bg-white rounded-2xl p-4 flex items-center gap-4 shadow-sm hover:shadow-md transition-all cursor-pointer"
+              key={index}
+              className="bg-orange-50 rounded-xl p-3"
             >
-              <div className="bg-gradient-to-br from-orange-100 to-orange-50 rounded-xl w-24 h-24 flex items-center justify-center text-4xl flex-shrink-0">
-                {recipe.image}
-              </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="font-bold text-gray-900">{recipe.name}</h3>
-                <p className="text-sm text-gray-600 mt-1">{recipe.time} min • {recipe.difficulty}</p>
-                <div className="flex items-center gap-2 mt-2">
-                  <Star size={14} className="fill-yellow-400 text-yellow-400" />
-                  <span className="text-sm font-semibold text-gray-900">{recipe.rating}</span>
-                </div>
-              </div>
+              {item}
             </div>
           ))}
-
-        {favorites.size === 0 && (
-          <div className="text-center py-12 text-gray-500">
-            <Bookmark size={48} className="mx-auto mb-4 text-gray-300" />
-            <p className="text-lg font-medium">No saved recipes yet</p>
-            <p className="text-sm mt-2">Save recipes to access them here</p>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-
-  // Profile Screen
-  const ProfileScreen = () => (
-    <div className="flex-1 overflow-y-auto pb-24">
-      <div className="bg-gradient-to-br from-orange-400 to-orange-500 px-6 py-12 text-center text-white">
-        <div className="w-24 h-24 bg-white rounded-full mx-auto mb-4 flex items-center justify-center text-4xl">
-          👨‍🍳
-        </div>
-        <h1 className="text-2xl font-bold mb-2">Chef AI</h1>
-        <p className="text-orange-100">Your personal cooking assistant</p>
-      </div>
-
-      <div className="px-6 py-8 space-y-4">
-        <div className="bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-200 rounded-2xl p-6">
-          <div className="flex items-start gap-4">
-            <div className="text-3xl">⭐</div>
-            <div className="flex-1">
-              <h3 className="font-bold text-gray-900 mb-2">Premium Plan</h3>
-              <p className="text-sm text-gray-700 mb-3">Unlock all features and premium recipes</p>
-              <button className="bg-purple-500 text-white px-4 py-2 rounded-lg font-bold text-sm hover:bg-purple-600 transition">
-                Upgrade Now
-              </button>
-            </div>
-          </div>
         </div>
 
-        <button className="w-full bg-white border border-gray-200 rounded-xl p-4 text-left hover:bg-gray-50 transition">
-          <p className="font-bold text-gray-900">Download Recipes</p>
-          <p className="text-sm text-gray-600 mt-1">Save recipes for offline access</p>
-        </button>
-
-        <button className="w-full bg-white border border-gray-200 rounded-xl p-4 text-left hover:bg-gray-50 transition">
-          <p className="font-bold text-gray-900">Cooking History</p>
-          <p className="text-sm text-gray-600 mt-1">View recipes you've cooked</p>
-        </button>
-
-        <button className="w-full bg-white border border-gray-200 rounded-xl p-4 text-left hover:bg-gray-50 transition">
-          <p className="font-bold text-gray-900">Help & Support</p>
-          <p className="text-sm text-gray-600 mt-1">Get help with the app</p>
+        <button className="w-full mt-8 bg-orange-500 hover:bg-orange-600 text-white py-4 rounded-2xl font-bold transition">
+          Start Cooking
         </button>
       </div>
     </div>
   );
 
   return (
-    <div className="fixed inset-0 bg-white flex flex-col max-w-md mx-auto relative overflow-hidden">
-      {/* Main Content */}
+    <div className="fixed inset-0 bg-gray-50 flex flex-col max-w-md mx-auto">
+      {/* Screens */}
       {currentScreen === 'home' && <HomeScreen />}
-      {currentScreen === 'recipe-detail' && <RecipeDetailScreen />}
-      {currentScreen === 'cooking' && <CookingScreen />}
-      {currentScreen === 'saved' && <SavedScreen />}
-      {currentScreen === 'profile' && <ProfileScreen />}
+      {currentScreen === 'detail' && selectedRecipe && (
+        <DetailScreen />
+      )}
 
       {/* Bottom Navigation */}
-      <div className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white border-t border-gray-200 flex items-center justify-around h-20 shadow-2xl">
+      <div className="h-20 bg-white border-t border-gray-200 flex items-center justify-around">
         <button
           onClick={() => setCurrentScreen('home')}
-          className={`flex flex-col items-center justify-center w-full h-full gap-1 transition-colors ${
-            currentScreen === 'home' ? 'text-orange-500' : 'text-gray-600 hover:text-orange-400'
-          }`}
+          className="flex flex-col items-center text-orange-500"
         >
-          <Home size={24} />
-          <span className="text-xs font-medium">Home</span>
+          <Home size={22} />
+          <span className="text-xs mt-1">Home</span>
         </button>
-        <button
-          onClick={() => setCurrentScreen('home')}
-          className="flex flex-col items-center justify-center w-full h-full gap-1 text-gray-600 hover:text-orange-400 transition-colors"
-        >
-          <Search size={24} />
-          <span className="text-xs font-medium">Search</span>
+
+        <button className="flex flex-col items-center text-gray-500">
+          <Search size={22} />
+          <span className="text-xs mt-1">Search</span>
         </button>
-        <button
-          onClick={() => setCurrentScreen('home')}
-          className="flex flex-col items-center justify-center w-full h-full gap-1 text-gray-600 hover:text-orange-400 transition-colors"
-        >
-          <ChefHat size={24} />
-          <span className="text-xs font-medium">Chef</span>
+
+        <button className="flex flex-col items-center text-gray-500">
+          <ChefHat size={22} />
+          <span className="text-xs mt-1">Chef</span>
         </button>
-        <button
-          onClick={() => setCurrentScreen('saved')}
-          className={`flex flex-col items-center justify-center w-full h-full gap-1 transition-colors ${
-            currentScreen === 'saved' ? 'text-orange-500' : 'text-gray-600 hover:text-orange-400'
-          }`}
-        >
-          <Bookmark size={24} />
-          <span className="text-xs font-medium">Saved</span>
+
+        <button className="flex flex-col items-center text-gray-500">
+          <Bookmark size={22} />
+          <span className="text-xs mt-1">Saved</span>
         </button>
-        <button
-          onClick={() => setCurrentScreen('profile')}
-          className={`flex flex-col items-center justify-center w-full h-full gap-1 transition-colors ${
-            currentScreen === 'profile' ? 'text-orange-500' : 'text-gray-600 hover:text-orange-400'
-          }`}
-        >
-          <User size={24} />
-          <span className="text-xs font-medium">Profile</span>
+
+        <button className="flex flex-col items-center text-gray-500">
+          <User size={22} />
+          <span className="text-xs mt-1">Profile</span>
         </button>
       </div>
     </div>
   );
 };
 
-export default CookMateApp
+export default CookMateApp;
